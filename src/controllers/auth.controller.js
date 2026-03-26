@@ -33,7 +33,7 @@ exports.login = asyncHandler(async (req, res) => {
     success(res, 200, { user:{ id: user._id, name: user.name, email: user.email, role: user.role }, accessToken }, 'Login Successful');
 });
 
-exports.refreshToken=asyncHandler(async(res,req)=>{
+exports.refreshToken=asyncHandler(async(req,res)=>{
     const token=req.cookies.refreshToken;
     if(!token) throw new ApiError(401, "No refresh token");
     const jwt=require("jsonwebtoken");

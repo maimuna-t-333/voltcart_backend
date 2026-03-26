@@ -10,7 +10,7 @@ const userSchema = new Schema({
   verifyToken:      String,
   resetToken:       String,
   resetTokenExpiry: Date,
-  refreshTokens:    [{ token: String, createdAt: Date }],
+  refreshToken:    [{ token: String, createdAt: Date }],
   addresses: [{
     label: String, line1: String, city: String,
     state: String, zip: String, country: String, isDefault: Boolean
