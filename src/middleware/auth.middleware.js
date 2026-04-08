@@ -13,7 +13,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  req.user = await User.findById(decoded.id);
+  req.user = await User.findById(decoded.id).select("-password -verifyToken -refreshToken -refreshTokens");
 
   if (!req.user) {
     throw new ApiError(401, "User not found");
