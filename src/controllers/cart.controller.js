@@ -7,7 +7,8 @@ const { success }  = require('../utils/ApiResponse');
 
 const getOrCreateCart = async (userId, sessionId) => {
   const query = userId ? { user: userId } : { sessionId };
-  return Cart.findOne(query) || Cart.create(query);
+  const cart = await Cart.findOne(query);
+  return cart || Cart.create(query);
 };
 
 exports.getCart = asyncHandler(async (req, res) => {
