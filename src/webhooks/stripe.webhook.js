@@ -9,6 +9,8 @@ exports.handleStripeWebhook = async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
+    console.log('Webhook secret used:', process.env.STRIPE_WEBHOOK_SECRET);
+    console.log('Webhook error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -19,6 +21,12 @@ exports.handleStripeWebhook = async (req, res) => {
       { status: 'confirmed', $push: { statusHistory: { status: 'confirmed', note: 'Payment received' } } },
       { new: true }
     ).populate('user');
+
+     if (!order) {
+      console.log('No order found for this payment intent - skipping');
+      return res.json({ received: true });
+    }
+    
     // Decrement stock for each item
     for (const item of order.items) {
       await Product.updateOne(

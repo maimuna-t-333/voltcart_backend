@@ -14,13 +14,17 @@ app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(morgan('dev'));
 app.use(compression());
 app.use(cookieParser());
-app.use(express.json());
 
 // Stripe webhook needs raw body — register BEFORE express.json()
 app.use('/api/v1/payments/webhook',
   express.raw({ type: 'application/json' }),
   require('./webhooks/stripe.webhook').handleStripeWebhook
 );
+
+
+app.use(express.json());
+
+
 
 // Routes (add as you build each feature)
 app.use('/api/v1/auth',     require('./routes/auth.routes'));
