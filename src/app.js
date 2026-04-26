@@ -10,7 +10,18 @@ const app = express();
 
 // Security & utility middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = [
+      'http://localhost:3000',
+      'https://voltcart-frontend.vercel.app',
+      process.env.CLIENT_URL?.replace(/\/$/, '')
+    ];
+    if (!origin || allowed.includes(origin)) callback(null, true);
+    else callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(morgan('dev'));
 app.use(compression());
 app.use(cookieParser());
