@@ -39,7 +39,7 @@ exports.refreshToken=asyncHandler(async(req,res)=>{
     const jwt=require("jsonwebtoken");
     const decoded=jwt.verify(token, process.env.JWT_REFRESH_TOKEN);
     const user=await User.findById(decoded.id);
-    const exists=user?.refreshTokens.some(t=>t.token===token);
+    const exists=user?.refreshTokens?.some(t=>t.token===token);
     if(!exists) throw new ApiError(401,'Invalid refresh Token');
     const newAccess=generateAccessToken(user._id,user.role);
     success(res,200,{accesstoken:newAccess, user:{id:user._id, name:user.name, email:user.email, role:user.role}});
