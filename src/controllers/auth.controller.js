@@ -56,3 +56,14 @@ exports.logout=asyncHandler(async(req,res)=>{
     success(res,200,null,'Logged out');
 })
 
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    // Don't reveal if email exists or not
+    return success(res, 200, {}, 'If that email exists, a reset link has been sent');
+  }
+  // For now just return success (email service not set up yet)
+  success(res, 200, {}, 'If that email exists, a reset link has been sent');
+});
+
