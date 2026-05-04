@@ -1,9 +1,9 @@
-const Cart = require('../models/Cart.model');
-const Order = require('../models/Order.model');
+const Cart    = require('../models/Cart.model');
+const Order   = require('../models/Order.model');
 const { createPaymentIntent } = require('../services/stripe.service');
 const asyncHandler = require('../utils/asyncHandler');
-const ApiError = require('../utils/ApiError');
-const { success } = require('../utils/ApiResponse');
+const ApiError     = require('../utils/ApiError');
+const { success }  = require('../utils/ApiResponse');
 
 exports.createIntent = asyncHandler(async (req, res) => {
   const { shippingMethod, items, subtotal, discount, couponCode } = req.body;
@@ -18,19 +18,17 @@ exports.createIntent = asyncHandler(async (req, res) => {
   const cart = await Cart.findOne({ user: req.user?._id });
 
   if (cart && cart.items.length > 0) {
-    // Use DB cart
     orderItems = cart.items;
     orderSubtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
     orderDiscount = cart.discount || 0;
   } else if (items && items.length > 0) {
-    // Use items from request body (frontend Zustand cart)
-    orderItems = items.map((item: any) => ({
+    orderItems = items.map(item => ({
       product: item.productId,
       variantSku: item.variantSku,
       quantity: item.quantity,
       price: item.price,
     }));
-    orderSubtotal = subtotal || items.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
+    orderSubtotal = subtotal || items.reduce((s, i) => s + i.price * i.quantity, 0);
     orderDiscount = discount || 0;
   } else {
     throw new ApiError(400, 'Cart is empty');
@@ -38,7 +36,6 @@ exports.createIntent = asyncHandler(async (req, res) => {
 
   const total = orderSubtotal - orderDiscount + (orderSubtotal > 50 ? 0 : shippingCost);
 
-  // Create draft order
   const order = await Order.create({
     user: req.user?._id,
     items: orderItems,
