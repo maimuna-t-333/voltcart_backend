@@ -45,7 +45,7 @@ app.use('/api/v1/orders',   require('./routes/order.routes'));
 // app.use('/api/v1/reviews',  require('./routes/review.routes'));
 app.use('/api/v1/payments', require('./routes/payment.routes'));
 app.use('/api/v1/chat',     require('./routes/chat.routes'));
-// app.use('/api/v1/admin',    require('./routes/admin.routes'));
+app.use('/api/v1/admin',    require('./routes/admin.routes'));
 app.use('/api/v1/users',    require('./routes/user.routes'));
 
 app.use(errorHandler);
