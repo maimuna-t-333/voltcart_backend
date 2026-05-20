@@ -1,5 +1,10 @@
 const router = require("express").Router();
 const { protect } = require("../middleware/auth.middleware");
+const User = require("../models/User.model");
+const Order = require("../models/Order.model");
+const asyncHandler = require("../utils/asyncHandler");
+const ApiError = require("../utils/ApiError");
+const { success } = require("../utils/ApiResponse");
 
 router.get("/profile", protect, (req, res) => {
   res.json({
@@ -18,5 +23,40 @@ router.get("/profile", protect, (req, res) => {
     message: "Profile fetched successfully",
   });
 });
+
+router.get("/", protect, adminOnly, asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, search } = req.query;
+  const query = { role: "customer" };
+  if (search) {
+    query.$or = [
+      { name:  { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
+  }
+  const skip  = (Number(page) - 1) * Number(limit);
+  const total = await User.countDocuments(query);
+  const users = await User.find(query)
+    .select("-password -verifyToken -resetToken -refreshToken")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(Number(limit));
+  success(res, 200, { users, total, page: Number(page), pages: Math.ceil(total / limit) });
+}));
+
+router.get("/:id", protect, adminOnly, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id)
+    .select("-password -verifyToken -resetToken -refreshToken");
+  if (!user) throw new ApiError(404, "Customer not found");
+
+  const orders = await Order.find({ user: req.params.id })
+    .sort({ createdAt: -1 })
+    .limit(20);
+
+  const totalSpent = orders
+    .filter(o => !["cancelled", "refunded"].includes(o.status))
+    .reduce((sum, o) => sum + (o.total || 0), 0);
+
+  success(res, 200, { user, orders, totalSpent });
+}));
 
 module.exports = router;
