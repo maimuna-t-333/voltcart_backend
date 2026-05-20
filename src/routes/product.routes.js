@@ -19,6 +19,7 @@ const optionalAuth = (req, res, next) => {
 router.get('/',           optionalAuth,c.getProducts);
 router.get('/featured',   c.getFeaturedProducts);
 router.get('/:slug',      c.getProductBySlug);
+router.get('/id/:id',     protect, adminOnly, c.getProductById);
 router.post('/',          protect, adminOnly, c.createProduct);
 router.patch('/:id',      protect, adminOnly, c.updateProduct);
 router.delete('/:id',     protect, adminOnly, c.deleteProduct);

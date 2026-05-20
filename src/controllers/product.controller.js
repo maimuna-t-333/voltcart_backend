@@ -74,3 +74,9 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
 
   success(res, 200, null, 'Product deleted');
 });
+
+exports.getProductById = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) throw new ApiError(404, 'Product not found');
+  success(res, 200, { product });
+});
