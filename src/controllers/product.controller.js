@@ -6,7 +6,8 @@ const { success }  = require('../utils/ApiResponse');
 
 exports.getProducts = asyncHandler(async (req, res) => {
   const { search, category, brand, minPrice, maxPrice, rating, sort, page = 1, limit = 12 } = req.query;
-  const query = { status: 'active' };
+  const isAdmin = req.user?.role === 'admin';
+  const query = isAdmin ? {} : { status: 'active' };
   if (search)   query.$text = { $search: search };
   if (category) query.category = category;
   if (brand)    query.brand = { $in: brand.split(',') };
