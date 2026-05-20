@@ -11,10 +11,11 @@ exports.getMyOrders = asyncHandler(async (req, res) => {
 });
 
 exports.getOrderById = asyncHandler(async (req, res) => {
-  const order = await Order.findOne({
-    _id: req.params.id,
-    user: req.user._id
-  });
+  const isAdmin=req.user?.role==='admin';
+  const query=isAdmin
+  ? {_id: req.params.id}
+  : {_id: req.params.id, user:req.user._id}
+  const order = await Order.findOne(query).populate('user', 'name email');
   if (!order) throw new ApiError(404, 'Order not found');
   success(res, 200, { order });
 });
