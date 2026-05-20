@@ -47,6 +47,6 @@ app.use('/api/v1/payments', require('./routes/payment.routes'));
 app.use('/api/v1/chat',     require('./routes/chat.routes'));
 app.use('/api/v1/admin',    require('./routes/admin.routes'));
 app.use('/api/v1/users',    require('./routes/user.routes'));
-
+app.use('/api/v1/coupons', require('./routes/coupon.routes'));
 app.use(errorHandler);
 module.exports = app;
