@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { protect } = require("../middleware/auth.middleware");
+const { protect, adminOnly } = require("../middleware/auth.middleware");
 const User = require("../models/User.model");
 const Order = require("../models/Order.model");
 const asyncHandler = require("../utils/asyncHandler");
@@ -41,6 +41,26 @@ router.get("/", protect, adminOnly, asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(Number(limit));
   success(res, 200, { users, total, page: Number(page), pages: Math.ceil(total / limit) });
+}));
+
+router.post("/wishlist/:productId", protect, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const productId = req.params.productId;
+ 
+  if (user.wishlist.some(id => id.toString() === productId)) {
+    return success(res, 200, { wishlist: user.wishlist }, "Already in wishlist");
+  }
+ 
+  user.wishlist.push(productId);
+  await user.save();
+  success(res, 200, { wishlist: user.wishlist }, "Added to wishlist");
+}));
+
+router.delete("/wishlist/:productId", protect, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  user.wishlist = user.wishlist.filter(id => id.toString() !== req.params.productId);
+  await user.save();
+  success(res, 200, { wishlist: user.wishlist }, "Removed from wishlist");
 }));
 
 router.get("/:id", protect, adminOnly, asyncHandler(async (req, res) => {
