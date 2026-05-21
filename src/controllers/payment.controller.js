@@ -4,9 +4,10 @@ const { createPaymentIntent } = require('../services/stripe.service');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError     = require('../utils/ApiError');
 const { success }  = require('../utils/ApiResponse');
+const { sendOrderConfirmationEmail } = require('../services/email.service');
 
 exports.createIntent = asyncHandler(async (req, res) => {
-  const { shippingMethod, items, subtotal, discount, couponCode } = req.body;
+  const { shippingMethod, items, subtotal, discount, couponCode, shippingAddress } = req.body;
 
   const shippingCost = { standard: 5.99, express: 12.99, overnight: 24.99 }[shippingMethod] || 5.99;
 
@@ -46,7 +47,14 @@ exports.createIntent = asyncHandler(async (req, res) => {
     total,
     shippingMethod,
     couponCode: couponCode || cart?.couponCode,
+    shippingAddress: shippingAddress || null,
   });
+
+    if (req.user?.email) {
+    sendOrderConfirmationEmail(req.user, order).catch(err =>
+      console.error('[createIntent] Confirmation email failed:', err.message)
+    );
+  }
 
   const intent = await createPaymentIntent(total, { orderId: order._id.toString() });
   await Order.findByIdAndUpdate(order._id, { stripePaymentIntentId: intent.id });
