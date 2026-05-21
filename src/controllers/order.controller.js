@@ -2,6 +2,7 @@ const Order = require('../models/Order.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { success } = require('../utils/ApiResponse');
+const {sendOrderConfirmationEmail, sendOrderShippedEmail, sendOrderCancelledEmail, sendOrderDeliveredEmail} = require('../services/email.service');
 
 exports.getMyOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({ user: req.user._id })
@@ -39,7 +40,21 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     req.params.id,
     { status, $push: { statusHistory: { status, note: `Status updated to ${status}` } } },
     { new: true }
-  );
+  ).populate('user', 'name email');
+
   if (!order) throw new ApiError(404, 'Order not found');
+  if (order.user?.email) {
+    const emailMap = {
+      shipped:   () => sendOrderShippedEmail(order.user, order),
+      cancelled: () => sendOrderCancelledEmail(order.user, order),
+      delivered: () => sendOrderDeliveredEmail(order.user, order),
+    };
+    const emailFn = emailMap[status];
+    if (emailFn) {
+      emailFn().catch(err =>
+        console.error(`[updateOrderStatus] Email failed for status "${status}":`, err.message)
+      );
+    }
+  }
   success(res, 200, { order }, 'Order status updated');
 });
