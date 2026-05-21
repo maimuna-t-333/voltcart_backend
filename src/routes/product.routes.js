@@ -4,6 +4,7 @@ const { protect, adminOnly } = require('../middleware/auth.middleware');
 const { uploadImages } = require('../middleware/upload.middleware');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.model');
+const c2 = require('../controllers/review.controller');
 
 const optionalAuth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -24,5 +25,8 @@ router.post('/',          protect, adminOnly, c.createProduct);
 router.patch('/:id',      protect, adminOnly, c.updateProduct);
 router.delete('/:id',     protect, adminOnly, c.deleteProduct);
 router.post('/:id/images',protect, adminOnly, uploadImages, c.uploadProductImages);
+router.get('/:slug/reviews',              c2.getReviews);
+router.post('/:slug/reviews',             protect, c2.createReview);
+router.delete('/:slug/reviews/:reviewId', protect, c2.deleteReview);
 
 module.exports = router;
