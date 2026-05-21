@@ -27,7 +27,7 @@ exports.addItem = asyncHandler(async (req, res) => {
   const cart  = await getOrCreateCart(req.user?._id, req.headers['x-session-id']);
   const existing = cart.items.find(i => i.variantSku === variantSku);
   if (existing) existing.quantity += quantity;
-  else cart.items.push({ product: productId, variantSku, quantity, price: variant.price });
+  else cart.items.push({ product: productId, variantSku, quantity, price: variant.price, name: product.name, image: variant.image || product.images?.[0] || null, });
   await cart.save();
   success(res, 200, { cart }, 'Added to cart');
 });

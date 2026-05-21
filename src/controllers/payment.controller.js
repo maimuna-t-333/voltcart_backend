@@ -8,7 +8,6 @@ const { sendOrderConfirmationEmail } = require('../services/email.service');
 
 exports.createIntent = asyncHandler(async (req, res) => {
   const { shippingMethod, items, subtotal, discount, couponCode, shippingAddress } = req.body;
-
   const shippingCost = { standard: 5.99, express: 12.99, overnight: 24.99 }[shippingMethod] || 5.99;
 
   let orderItems = [];
