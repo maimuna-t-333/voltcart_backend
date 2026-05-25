@@ -177,6 +177,38 @@ async function sendOrderDeliveredEmail(user, order) {
   });
 }
 
+async function sendSubscriptionConfirmEmail(email, name, confirmUrl) {
+  return sendEmail({
+    to: email,
+    subject: 'Confirm your VoltCart subscription',
+    html: wrap(`
+      <h2>Almost there${name ? ', ' + name : ''}! 🎉</h2>
+      <p>Thanks for subscribing to VoltCart deals and updates.</p>
+      <p>Click the button below to confirm your subscription:</p>
+      <p style="margin:32px 0;">${btn(confirmUrl, 'Confirm Subscription')}</p>
+      <p style="color:#999;font-size:13px;">
+        If you didn't subscribe, you can safely ignore this email.<br/>
+        You won't receive any emails until you confirm.
+      </p>
+    `),
+  });
+}
+
+async function sendSubscriptionWelcomeEmail(email, name) {
+  return sendEmail({
+    to: email,
+    subject: 'Welcome to VoltCart newsletter! 🛍️',
+    html: wrap(`
+      <h2>You're in${name ? ', ' + name : ''}!</h2>
+      <p>You've successfully subscribed to VoltCart. Expect the best deals, new arrivals, and exclusive offers straight to your inbox.</p>
+      <p style="margin:32px 0;">${btn(process.env.CLIENT_URL + '/products', 'Shop Latest Deals')}</p>
+      <p style="color:#999;font-size:13px;">
+        You can unsubscribe anytime by clicking the unsubscribe link in any email.
+      </p>
+    `),
+  });
+}
+
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
@@ -185,4 +217,6 @@ module.exports = {
   sendOrderShippedEmail,
   sendOrderCancelledEmail,
   sendOrderDeliveredEmail,
+   sendSubscriptionConfirmEmail,   
+  sendSubscriptionWelcomeEmail, 
 };
