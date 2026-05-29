@@ -1,11 +1,18 @@
 const Review   = require('../models/Review.model');
 const Product  = require('../models/Product.model');
+const mongoose = require('mongoose');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError     = require('../utils/ApiError');
 const { success }  = require('../utils/ApiResponse');
 
+const findProduct = async slugOrId => {
+  let p = await Product.findOne({ slug: slugOrId });
+  if (!p && mongoose.Types.ObjectId.isValid(slugOrId)) p = await Product.findById(slugOrId);
+  return p;
+};
+
 exports.getReviews = asyncHandler(async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug });
+  const product = await findProduct(req.params.slug);
   if (!product) throw new ApiError(404, 'Product not found');
 
   const reviews = await Review.find({ product: product._id })
@@ -19,7 +26,7 @@ exports.createReview = asyncHandler(async (req, res) => {
   const { rating, title, comment } = req.body;
   if (!rating) throw new ApiError(400, 'Rating is required');
 
-  const product = await Product.findOne({ slug: req.params.slug });
+  const product = await findProduct(req.params.slug);
   if (!product) throw new ApiError(404, 'Product not found');
 
   // one review per user per product

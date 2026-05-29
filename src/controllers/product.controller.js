@@ -1,4 +1,5 @@
 const Product    = require('../models/Product.model');
+const mongoose   = require('mongoose');
 const { uploadToCloudinary } = require('../services/image.service');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError     = require('../utils/ApiError');
@@ -27,7 +28,10 @@ exports.getProducts = asyncHandler(async (req, res) => {
 });
 
 exports.getProductBySlug = asyncHandler(async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug, status: 'active' });
+  let product = await Product.findOne({ slug: req.params.slug, status: 'active' });
+  if (!product && mongoose.Types.ObjectId.isValid(req.params.slug)) {
+    product = await Product.findById(req.params.slug);
+  }
   if (!product) throw new ApiError(404, 'Product not found');
   success(res, 200, { product });
 });

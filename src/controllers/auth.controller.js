@@ -73,10 +73,10 @@ exports.refreshToken=asyncHandler(async(req,res)=>{
         throw new ApiError(401, 'Invalid or expired refresh token');
     }
     const user=await User.findById(decoded.id);
-    const exists=user?.refreshTokens?.some(t=>t.token===token);
+    const exists = user?.refreshToken?.some(t => t.token === token);
     if(!exists) throw new ApiError(401,'Invalid refresh Token');
     const newAccessToken=generateAccessToken(user._id,user.role);
-    success(res,200,{accesstoken:newAccessToken, user:{id:user._id, name:user.name, email:user.email, role:user.role}});
+    success(res,200,{accessToken:newAccessToken, user:{id:user._id, name:user.name, email:user.email, role:user.role}});
 
 });
 

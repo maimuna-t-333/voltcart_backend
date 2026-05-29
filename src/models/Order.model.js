@@ -4,9 +4,15 @@ const orderSchema = new Schema({
   user:         { type: Schema.Types.ObjectId, ref: 'User' },
   guestEmail:   String,
   items: [{
-    product:    { type: Schema.Types.ObjectId, ref: 'Product' },
-    variantSku: String, name: String, image: String,
-    price: Number, quantity: Number
+    product:        { type: Schema.Types.ObjectId, ref: 'Product' },
+    variantSku:     String,
+    name:           String,
+    image:          String,
+    slug:           String,
+    variantColor:   String,
+    variantStorage: String,
+    price:          Number,
+    quantity:       Number
   }],
   status: { type: String,
     enum: ['pending','confirmed','processing','shipped',

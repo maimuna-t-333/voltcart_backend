@@ -1,9 +1,9 @@
-const Cart    = require('../models/Cart.model');
-const Order   = require('../models/Order.model');
+const Cart = require('../models/Cart.model');
+const Order = require('../models/Order.model');
 const { createPaymentIntent } = require('../services/stripe.service');
 const asyncHandler = require('../utils/asyncHandler');
-const ApiError     = require('../utils/ApiError');
-const { success }  = require('../utils/ApiResponse');
+const ApiError = require('../utils/ApiError');
+const { success } = require('../utils/ApiResponse');
 const { sendOrderConfirmationEmail } = require('../services/email.service');
 
 exports.createIntent = asyncHandler(async (req, res) => {
@@ -25,6 +25,11 @@ exports.createIntent = asyncHandler(async (req, res) => {
     orderItems = items.map(item => ({
       product: item.productId,
       variantSku: item.variantSku,
+      name: item.name,
+      image: item.image,
+      slug: item.slug,
+      variantColor: item.variantColor,
+      variantStorage: item.variantStorage,
       quantity: item.quantity,
       price: item.price,
     }));
@@ -49,7 +54,7 @@ exports.createIntent = asyncHandler(async (req, res) => {
     shippingAddress: shippingAddress || null,
   });
 
-    if (req.user?.email) {
+  if (req.user?.email) {
     sendOrderConfirmationEmail(req.user, order).catch(err =>
       console.error('[createIntent] Confirmation email failed:', err.message)
     );
