@@ -8,7 +8,6 @@ const {success}=require("../utils/ApiResponse");
 const jwt     = require('jsonwebtoken');
 const {sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../services/email.service');
 
-
 exports.register = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
     if (await User.findOne({ email }))
@@ -53,7 +52,8 @@ exports.login = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email }).select("+password");
     if (!user || !(await bcrypt.compare(password, user.password)))
         throw new ApiError(401, "Invalid email or password");
-
+    if (!user.isVerified)
+        throw new ApiError(403, "Please verify your email before logging in");
     const accessToken = generateAccessToken(user._id, user.role);
     const refreshToken = generateRefreshToken(user._id);
     user.refreshToken.push({ token: refreshToken, createdAt: new Date() });
